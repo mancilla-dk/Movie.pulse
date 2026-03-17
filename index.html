@@ -91,6 +91,9 @@
         .btn-whatsapp { background: #25D366; color: #ffffff; margin-top: 5px; box-shadow: 0 4px 15px rgba(37, 211, 102, 0.2); }
         .btn-whatsapp:hover { background: #20bd5a; box-shadow: 0 6px 20px rgba(37, 211, 102, 0.4); }
 
+        .btn-gratis { background: #f59e0b; color: #141414; box-shadow: 0 4px 15px rgba(245, 158, 11, 0.3); }
+        .btn-gratis:hover { background: #d97706; box-shadow: 0 6px 20px rgba(245, 158, 11, 0.5); }
+
         #mensaje-sistema { margin-top: 15px; font-size: 14px; display: none; font-weight: 500; }
 
         /* Vistas ocultas */
@@ -157,6 +160,8 @@
         <div style="margin-top: 35px; border-top: 1px solid var(--glass-border); padding-top: 25px;">
             <p style="font-size: 13px; color: var(--text-muted); margin-bottom: 12px;">¿Aún no tienes una membresía?</p>
             <button class="btn-whatsapp" onclick="contactarProveedor()">Adquirir acceso</button>
+            
+            <button id="btn-publicidad" class="btn-gratis" onclick="verPublicidad()">Entrar gratis: Ver 2 anuncios</button>
         </div>
     </div>
 
@@ -293,11 +298,52 @@
 
         window.onload = async function() {
             const userGuardado = localStorage.getItem("laMovieUser");
+            const paseGratis = localStorage.getItem("accesoGratisHasta"); // Checar si tiene el pase de 12 horas
+            const btnPubli = document.getElementById("btn-publicidad");
+
             if (userGuardado && userGuardado !== "ZonaTecno") {
+                // Usuario premium logueado
                 vLogin.style.display = "none";
                 validarEnFirebase(userGuardado, null, true);
+            } else if (paseGratis && Date.now() < parseInt(paseGratis)) {
+                // Usuario gratis que ya vio la publicidad (está dentro de las 12h)
+                // Se brinca el login y va directo a la película
+                vLogin.style.display = "none";
+                accesoPorPublicidad();
             }
         };
+
+        // --- LÓGICA DE USUARIO GRATIS Y PUBLICIDAD --- //
+        let anunciosVistos = 0;
+        window.verPublicidad = function() {
+            // Reemplaza esto con tu Direct Link de Adsterra
+            const urlPublicidad = "https://www.effectivegatecpm.com/bju7faig6?key=d4c087ca3524b4bee6f6c8bd9e5c8d9e"; 
+
+            const btnPubli = document.getElementById("btn-publicidad");
+
+            if (anunciosVistos === 0) {
+                anunciosVistos++;
+                window.open(urlPublicidad, '_blank');
+                btnPubli.innerText = "Falta 1 anuncio para desbloquear";
+                mostrarMsj(msjSis, "Anuncio 1 visto. Haz clic de nuevo.", "#f59e0b");
+                
+            } else if (anunciosVistos === 1) {
+                anunciosVistos++;
+                window.open(urlPublicidad, '_blank');
+                
+                // Guardar acceso por 12 horas en milisegundos
+                const doceHoras = Date.now() + (12 * 60 * 60 * 1000);
+                localStorage.setItem('accesoGratisHasta', doceHoras.toString());
+                
+                btnPubli.innerText = "¡Desbloqueado! Entrando...";
+                accesoPorPublicidad();
+            }
+        };
+
+        window.accesoPorPublicidad = function() {
+            mostrarSplashAnimado("Invitado Premium");
+        };
+        // --------------------------------------------- //
 
         window.procesarLogin = function() {
             const user = document.getElementById("usuario").value.trim();
@@ -332,13 +378,12 @@
                             localStorage.setItem("laMovieUser", user);
                             
                             if (diasRestantes <= 2) {
-                                // Verificar si el aviso ya se mostró hoy
                                 let mostrarAviso = true;
                                 const ultimoAviso = localStorage.getItem("avisoVisto_" + user);
                                 if (ultimoAviso) {
                                     const horasPasadas = (Date.now() - parseInt(ultimoAviso)) / (1000 * 60 * 60);
                                     if (horasPasadas < 24) {
-                                        mostrarAviso = false; // Menos de 24 horas, no mostrar
+                                        mostrarAviso = false;
                                     }
                                 }
 
@@ -347,10 +392,10 @@
                                     vLogin.style.display = "none";
                                     vBanner.style.display = "flex"; 
                                 } else {
-                                    irAPeliculas(); // Salto directo
+                                    irAPeliculas();
                                 }
                             } else {
-                                irAPeliculas(); // Salto directo si tiene muchos días
+                                irAPeliculas();
                             }
                         }
                     } else { mostrarMsj(msjSis, "Contraseña incorrecta", "#ef4444"); }
@@ -367,7 +412,6 @@
         window.continuarHaciaAviso = function() {
             const user = localStorage.getItem("laMovieUser");
             if(user) {
-                // Guarda la marca de tiempo de cuándo le dio a "Continuar"
                 localStorage.setItem("avisoVisto_" + user, Date.now());
             }
             vBanner.style.display = "none"; 
@@ -401,10 +445,8 @@
             document.getElementById("texto-bienvenida").innerText = "¡Hola, " + nombre + "!";
             
             setTimeout(() => { 
-                // Intenta abrir con el comando interno de Median.co
                 window.location.href = "gonative://open/url?url=" + encodeURIComponent("https://la.movie/");
                 
-                // Respaldo por si se abre desde un navegador web normal o falla el comando
                 setTimeout(() => {
                     window.location.href = "https://la.movie/";
                 }, 500);
@@ -481,7 +523,6 @@
             } else { contenedor.innerHTML = "<p>No hay clientes registrados.</p>"; }
         };
 
-        /* Controladores Modal Editar Días Manuales */
         window.abrirModalEditar = function(usuario) {
             usuarioAEditar = usuario;
             document.getElementById("modal-nombre-editar").innerText = "Usuario: @" + usuario;
@@ -507,7 +548,6 @@
             }
         };
 
-        /* Controladores Modal Renovar Plan */
         window.abrirModalRenovar = function(usuario) {
             usuarioAEditar = usuario;
             document.getElementById("modal-nombre-renovar").innerText = "Usuario: @" + usuario;
@@ -528,7 +568,6 @@
                     const nuevaExpiracion = Date.now() + (diasInt * 24 * 60 * 60 * 1000);
                     await update(ref(db, 'usuarios/' + usuarioAEditar), { expira: nuevaExpiracion });
                     
-                    // Al renovar, limpiamos la restricción de 24 horas para que el aviso vuelva a funcionar en el futuro
                     localStorage.removeItem("avisoVisto_" + usuarioAEditar); 
                     
                     cerrarModalRenovar();
@@ -537,7 +576,6 @@
             }
         };
 
-        /* Borrar / Bloquear Cliente */
         window.borrarCliente = async function(usuario) {
             if(confirm("¿Seguro que deseas eliminar/bloquear a " + usuario + "? El cliente perderá su acceso de inmediato.")) {
                 await remove(ref(db, 'usuarios/' + usuario));
@@ -568,3 +606,4 @@
     </script>
 </body>
 </html>
+
