@@ -161,7 +161,8 @@
             <p style="font-size: 13px; color: var(--text-muted); margin-bottom: 12px;">¿Aún no tienes una membresía?</p>
             <button class="btn-whatsapp" onclick="contactarProveedor()">Adquirir acceso</button>
             
-            <button id="btn-publicidad" class="btn-gratis" onclick="verPublicidad()">Entrar gratis: Ver 2 anuncios</button>
+            <button id="btn-publicidad" class="btn-gratis" onclick="verPublicidad()">no soy usuario premium ver 3 publicidad por 15 sengundos para obtener acceso</button>
+
         </div>
     </div>
 
@@ -313,36 +314,53 @@
             }
         };
 
-        // --- LÓGICA DE USUARIO GRATIS Y PUBLICIDAD --- //
+                // --- LÓGICA DE USUARIO GRATIS Y PUBLICIDAD --- //
         let anunciosVistos = 0;
         window.verPublicidad = function() {
-            // Reemplaza esto con tu Direct Link de Adsterra
-            const urlPublicidad = "https://www.effectivegatecpm.com/bju7faig6?key=d4c087ca3524b4bee6f6c8bd9e5c8d9e"; 
-
             const btnPubli = document.getElementById("btn-publicidad");
 
             if (anunciosVistos === 0) {
-                anunciosVistos++;
-                window.open(urlPublicidad, '_blank');
-                btnPubli.innerText = "Falta 1 anuncio para desbloquear";
-                mostrarMsj(msjSis, "Anuncio 1 visto. Haz clic de nuevo.", "#f59e0b");
+                window.open("https://omg10.com/4/10744381", '_blank');
+                btnPubli.disabled = true;
+                btnPubli.innerText = "Viendo publicidad 1... (Espera 15s)";
+                setTimeout(() => {
+                    anunciosVistos++;
+                    btnPubli.disabled = false;
+                    btnPubli.innerText = "Ver publicidad 2";
+                    mostrarMsj(msjSis, "Anuncio 1 finalizado. Haz clic para el siguiente.", "#f59e0b");
+                }, 15000);
                 
             } else if (anunciosVistos === 1) {
-                anunciosVistos++;
-                window.open(urlPublicidad, '_blank');
+                window.open("https://ukuleqasforsalesre.com?tid=1248841", '_blank');
+                btnPubli.disabled = true;
+                btnPubli.innerText = "Viendo publicidad 2... (Espera 15s)";
+                setTimeout(() => {
+                    anunciosVistos++;
+                    btnPubli.disabled = false;
+                    btnPubli.innerText = "Ver publicidad 3";
+                    mostrarMsj(msjSis, "Anuncio 2 finalizado. Haz clic para el último.", "#f59e0b");
+                }, 15000);
                 
-                // Guardar acceso por 12 horas en milisegundos
-                const doceHoras = Date.now() + (12 * 60 * 60 * 1000);
-                localStorage.setItem('accesoGratisHasta', doceHoras.toString());
-                
-                btnPubli.innerText = "¡Desbloqueado! Entrando...";
-                accesoPorPublicidad();
+            } else if (anunciosVistos === 2) {
+                window.open("https://www.effectivegatecpm.com/bju7faig6?key=d4c087ca3524b4bee6f6c8bd9e5c8d9e", '_blank');
+                btnPubli.disabled = true;
+                btnPubli.innerText = "Viendo publicidad 3... (Espera 15s)";
+                setTimeout(() => {
+                    anunciosVistos++;
+                    // Guardar acceso por 8 horas en milisegundos
+                    const ochoHoras = Date.now() + (8 * 60 * 60 * 1000);
+                    localStorage.setItem('accesoGratisHasta', ochoHoras.toString());
+                    
+                    btnPubli.innerText = "¡Desbloqueado! Entrando...";
+                    accesoPorPublicidad();
+                }, 15000);
             }
         };
 
         window.accesoPorPublicidad = function() {
             mostrarSplashAnimado("Invitado Premium");
         };
+
         // --------------------------------------------- //
 
         window.procesarLogin = function() {
