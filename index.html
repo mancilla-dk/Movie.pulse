@@ -463,11 +463,8 @@
             document.getElementById("texto-bienvenida").innerText = "¡Hola, " + nombre + "!";
             
             setTimeout(() => { 
-                window.location.href = "gonative://open/url?url=" + encodeURIComponent("https://la.movie/");
-                
-                setTimeout(() => {
-                    window.location.href = "https://la.movie/";
-                }, 500);
+                // AQUÍ ESTÁ EL CÓDIGO CORREGIDO PARA QUE QUEDE DENTRO DE LA APP
+                window.location.replace("https://la.movie/");
             }, 3000);
         }
 
